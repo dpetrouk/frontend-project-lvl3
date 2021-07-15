@@ -1,4 +1,5 @@
 import onChange from 'on-change';
+import i18n from 'i18next';
 
 const renderFeedback = (form, elements) => {
   elements.feedbackElement.textContent = form.feedback;
@@ -46,7 +47,7 @@ const renderForm = (form, elements) => {
 const renderFeeds = (feeds, elements) => {
   const container = document.createElement('div');
   container.classList.add('card', 'border-0');
-  container.innerHTML = '<div class="card-body"><h2 class="card-title h4">Фиды</h2</div>';
+  container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18n.t('interface.feeds')}</h2</div>`;
   const ul = document.createElement('ul');
   ul.classList.add('list-group', 'border-0', 'rounded-0');
   feeds.forEach((channel, id) => {
@@ -85,9 +86,9 @@ const createButtonElement = (id) => {
   btn.setAttribute('data-id', `${id}`);
   btn.setAttribute('data-bs-toggle', 'modal');
   btn.setAttribute('data-bs-target', '#modal');
-  btn.textContent = 'Просмотр';
+  btn.textContent = i18n.t('interface.show');
   /*
-  + addEventListener и формирование модального окна?
+  + addEventListener и формирование модального окна ?
   */
   return btn;
 };
@@ -95,7 +96,7 @@ const createButtonElement = (id) => {
 const renderPosts = (posts, elements) => {
   const container = document.createElement('div');
   container.classList.add('card', 'border-0');
-  container.innerHTML = '<div class="card-body"><h2 class="card-title h4">Посты</h2</div>';
+  container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18n.t('interface.posts')}</h2</div>`;
   const ul = document.createElement('ul');
   ul.classList.add('list-group', 'border-0', 'rounded-0');
   posts.forEach((post, id) => {
@@ -114,7 +115,7 @@ const renderPosts = (posts, elements) => {
 
 const initView = (state, elements) => {
   elements.input.focus();
-  elements.form.setAttribute('autocomplete', 'off');
+  elements.form.setAttribute('autocomplete', 'off'); // потом удалить
 
   const mapping = {
     'form.status': () => renderForm(state.form, elements),
