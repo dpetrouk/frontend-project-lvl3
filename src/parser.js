@@ -27,6 +27,7 @@ const parseRSS = (data) => {
         title: item.querySelector('title').textContent,
         description: getTextContentFromWorkingSelector(item, ['description', 'content']),
         link: (item.querySelector('link').textContent || item.querySelector('link').getAttribute('href')),
+        id: getTextContentFromWorkingSelector(item, ['id', 'post-id', 'guid']),
       };
       return [...acc, post];
     }, []);

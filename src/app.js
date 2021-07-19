@@ -5,9 +5,10 @@ import resources from './locales/resources.js';
 import initView from './view.js';
 import parseRSS from './parser.js';
 
+const proxy = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
 
 const getFeed = (feed) => {
-  const proxiedUrl = `https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(feed)}`;
+  const proxiedUrl = `${proxy}${encodeURIComponent(feed)}`;
   return axios.get(proxiedUrl)
     .then((response) => response.data.contents)
     .catch((err) => {
@@ -29,6 +30,7 @@ const app = () => {
   const state = {
     feeds: [],
     posts: [],
+    postsIds: [],
     addedUrls: [],
     form: {
       status: 'filling',
@@ -73,6 +75,21 @@ const app = () => {
       return null;
     });
 
+  const updateFeed = (sourceUrl) => {
+    setTimeout(() => {
+      getFeed(sourceUrl)
+        .then((data) => {
+          const { posts } = parseRSS(data);
+          const newPosts = posts.filter(({ id }) => !watched.postsIds.includes(id));
+          watched.posts.push(...newPosts);
+          const newPostsIds = newPosts.map(({ id }) => id);
+          watched.postsIds.push(...newPostsIds);
+        })
+        .then(() => updateFeed(sourceUrl))
+        .catch((err) => console.log(err));
+    }, 5000);
+  };
+
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(elements.form);
@@ -95,9 +112,12 @@ const app = () => {
         const { channel, posts } = parseRSS(data);
         watched.feeds.push(channel);
         watched.posts.push(...posts);
+        const postsIds = posts.map(({ id }) => id);
+        watched.postsIds.push(...postsIds);
         watched.addedUrls.push(sourceUrl);
         watched.form.feedback = i18n.t('feedback.success');
       })
+      .then(() => updateFeed(sourceUrl))
       .catch((err) => {
         watched.form.feedback = err.message;
         watched.form.status = 'failed';
