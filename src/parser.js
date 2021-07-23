@@ -10,7 +10,7 @@ const parseRSS = (data) => {
   try {
     const parser = new DOMParser();
     const documentElement = parser.parseFromString(data, 'text/xml');
-    const rssElement = documentElement.querySelector('rss');
+    const rssElement = documentElement.querySelector('rss') || documentElement.querySelector('feed');
     const rss = {
       channel: {
         title: rssElement.querySelector('title').textContent,
@@ -26,14 +26,14 @@ const parseRSS = (data) => {
       const post = {
         title: item.querySelector('title').textContent,
         description: getTextContentFromWorkingSelector(item, ['description', 'content']),
-        link: (item.querySelector('link').textContent || item.querySelector('link').getAttribute('href')),
+        link: item.querySelector('link').textContent || item.querySelector('link').getAttribute('href'),
         id: getTextContentFromWorkingSelector(item, ['id', 'post-id', 'guid']),
       };
       return [...acc, post];
     }, []);
     return rss;
   } catch(err) {
-    throw new Error(i18n.t('errors.resource'));
+    throw new Error('form.feedback.errors.resource');
   }
 };
 
