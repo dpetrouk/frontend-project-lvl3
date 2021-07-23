@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
-  <title>RSS aggregator</title>
+  <title>RSS агрегатор</title>
 </head>
 <body class="d-flex flex-column min-vh-100">
   <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true">
@@ -15,8 +15,8 @@
         </div>
         <div class="modal-body"></div>
         <div class="modal-footer">
-          <a class="btn btn-primary full-article" href="#" role="button" target="_blank" rel="noopener noreferrer">Expand </a>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <a class="btn btn-primary full-article" href="#" role="button" target="_blank" rel="noopener noreferrer">Читать полностью</a>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
         </div>
       </div>
     </div>
@@ -25,35 +25,37 @@
     <section class="container-fluid bg-dark p-5">
       <div class="row">
         <div class="col-md-10 col-lg-8 mx-auto text-white">
-          <h1 class="display-3 mb-0">RSS aggregator</h1>
-          <p class="lead">You can read RSS feeds here</p>
+          <h1 class="display-3 mb-0">RSS агрегатор</h1>
+          <p class="lead">Здесь можно читать RSS фиды</p>
           <form action="" class="rss-form text-body">
             <div class="row">
               <div class="col">
                 <div class="form-floating">
                   <input id="url-input" autofocus required name="url" aria-label="url" class="form-control w-100" placeholder="ссылка RSS" value="https://lorem-rss.herokuapp.com/feed">
-                  <label for="url-input">RSS link</label>
+                  <label for="url-input">RSS ссылка</label>
                 </div>
               </div>
               <div class="col-auto">
-                <button type="submit" aria-label="add" class="h-100 btn btn-lg btn-primary px-sm-5">Add</button>
+                <button type="submit" aria-label="add" id="btnAdd" class="h-100 btn btn-lg btn-primary px-sm-5">Добавить</button>
               </div>
             </div>
           </form>
-          <p class="mt-2 mb-0 text-muted">Example:
+          <p class="mt-2 mb-0 text-muted"><span>Example</span>:
             <a href class="link-secondary">https://ru.hexlet.io/lessons.rss</a>
-            <br>
-            <a href class="link-secondary">https://lorem-rss.herokuapp.com/feed</a>
             <br>
             <a href class="link-secondary">https://lorem-rss.herokuapp.com/feed?unit=second&interval=30</a>
             <br>
             <a href class="link-secondary">https://pchiusano.github.io/feed.xml</a>
             <br>
             <a href class="link-secondary">https://thesymbolicworld.com/feed/</a>
-            <br>
-            <a href class="link-secondary">https://grumpy.website/feed.xml</a>
           </p>
           <p class="feedback m-0 position-absolute small text-danger"></p>
+        </div>
+        <div id="language-selector" class="btn-group col-auto position-absolute top-0 end-0 m-3" role="group" aria-label="radio buttons to change language">
+          <input type="radio" class="btn-check" name="btnradio" id="btnradio1" data-language="en" autocomplete="off">
+          <label class="btn btn-outline-secondary" for="btnradio1">English</label>
+          <input type="radio" class="btn-check" name="btnradio" id="btnradio2" data-language="ru" autocomplete="off" checked>
+          <label class="btn btn-outline-secondary" for="btnradio2">Русский</label>
         </div>
       </div>
     </section>
