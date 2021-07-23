@@ -2,7 +2,7 @@ import onChange from 'on-change';
 import i18n from 'i18next';
 
 const renderFeedback = (form, elements) => {
-  elements.feedbackElement.textContent = form.feedback;
+  elements.feedbackElement.textContent = i18n.t(form.feedback);
 };
 
 const renderFormErrors = (form, elements) => {
@@ -47,7 +47,7 @@ const renderForm = (form, elements) => {
 const renderFeeds = (feeds, elements) => {
   const container = document.createElement('div');
   container.classList.add('card', 'border-0');
-  container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18n.t('interface.feeds')}</h2</div>`;
+  container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18n.t('feeds.header')}</h2</div>`;
   const ul = document.createElement('ul');
   ul.classList.add('list-group', 'border-0', 'rounded-0');
   feeds.forEach((channel, id) => {
@@ -64,65 +64,110 @@ const renderFeeds = (feeds, elements) => {
     ul.prepend(li);
   });
   container.append(ul);
-  elements.feedsElement.innerHTML = '';
-  elements.feedsElement.append(container)
+  if (container.textContent !== i18n.t('feeds.header')) {
+    elements.feedsElement.innerHTML = '';
+    elements.feedsElement.append(container);
+  }
 };
 
-const createLinkElement = (title, link, id) => {
+const createPostContainer = () => {
+  const li = document.createElement('li');
+  li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+  return li;
+};
+
+const createLinkElement = () => {
   const a = document.createElement('a');
-  a.classList.add('fw-bold');
-  a.href = link;
-  a.textContent = title;
-  a.setAttribute('data-id', `${id}`);
   a.setAttribute('target', '_blank');
   a.setAttribute('rel', 'noopener noreferrer');
   return a;
 };
 
-const createButtonElement = (id) => {
+const createButtonElement = () => {
   const btn = document.createElement('button');
   btn.setAttribute('type', 'button');
   btn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-  btn.setAttribute('data-id', `${id}`);
   btn.setAttribute('data-bs-toggle', 'modal');
   btn.setAttribute('data-bs-target', '#modal');
-  btn.textContent = i18n.t('interface.show');
-  /*
-  + addEventListener и формирование модального окна ?
-  */
   return btn;
 };
 
-const renderPosts = (posts, elements) => {
+const renderPosts = ({ visited, posts }, elements) => {
   const container = document.createElement('div');
   container.classList.add('card', 'border-0');
-  container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18n.t('interface.posts')}</h2</div>`;
+  container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18n.t('posts.header')}</h2</div>`;
   const ul = document.createElement('ul');
   ul.classList.add('list-group', 'border-0', 'rounded-0');
+  const templates = {
+    li: createPostContainer(),
+    link: createLinkElement(),
+    btn: createButtonElement(),
+  };
   posts.forEach((post, id) => {
     const { title, link } = post;
-    const li = document.createElement('li');
-    li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-    const linkElement = createLinkElement(title, link, id);
-    const btn = createButtonElement(id);
+    const li = templates.li.cloneNode();
+    const linkElement = templates.link.cloneNode();
+    if (visited.includes(id)) {
+      linkElement.classList.add('fw-normal', 'link-secondary');
+    } else {
+      linkElement.classList.add('fw-bold');
+    }
+    linkElement.href = link;
+    linkElement.textContent = title;
+    linkElement.setAttribute('data-id', `${id}`);
+    const btn = templates.btn.cloneNode();
+    btn.textContent = i18n.t('posts.btnShow');
+    btn.setAttribute('data-id', `${id}`);
     li.append(linkElement, btn);
     ul.prepend(li);
   });
   container.append(ul);
-  elements.postsElement.innerHTML = '';
-  elements.postsElement.append(container);
+  if (container.textContent !== i18n.t('posts.header')) {
+    elements.postsElement.innerHTML = '';
+    elements.postsElement.append(container);
+  }
+};
+
+const renderModal = (state, elements) => {
+  const id = state.modal.selectedPost;
+  const { title, description, link } = state.posts[id];
+  elements.modal.title.textContent = title;
+  elements.modal.description.textContent = description;
+  elements.modal.btnOpen.href = link;
+};
+
+const renderInitTexts = (elements) => {
+  elements.textFields.pageTitle.textContent = i18n.t('pageTitle');
+  elements.textFields.header.textContent = i18n.t('pageTitle');
+  elements.textFields.pageDescription.textContent = i18n.t('pageDescription');
+  elements.textFields.labelForInput.textContent = i18n.t('form.labelForInput');
+  elements.textFields.examples.textContent = i18n.t('form.examples');
+  elements.btnAdd.textContent = i18n.t('form.btnAdd');
+  elements.modal.btnOpen.textContent = i18n.t('modal.btnOpen');
+  elements.modal.btnClose.textContent = i18n.t('modal.btnClose');
+};
+
+const renderAllTexts = (state, elements) => {
+  renderInitTexts(elements);
+  renderFeedback(state.form, elements);
+  renderFeeds(state.feeds, elements);
+  renderPosts(state, elements);
 };
 
 const initView = (state, elements) => {
   elements.input.focus();
   elements.form.setAttribute('autocomplete', 'off'); // потом удалить
+  renderInitTexts(elements);
 
   const mapping = {
+    'language': () => renderAllTexts(state, elements),
     'form.status': () => renderForm(state.form, elements),
     'form.feedback': () => renderFeedback(state.form, elements),
     'form.fields.url': () => renderFormErrors(state.form, elements),
     'feeds': () => renderFeeds(state.feeds, elements),
-    'posts': () => renderPosts(state.posts, elements),
+    'posts': () => renderPosts(state, elements),
+    'visited': () => renderPosts(state, elements),
+    'modal.selectedPost': () => renderModal(state, elements),
   };
 
   const watchedState = onChange(state, (path) => {
