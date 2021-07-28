@@ -62,7 +62,7 @@ const app = () => {
       title: document.querySelector('.modal-title'),
       description: document.querySelector('.modal-body'),
       btnOpen: document.querySelector('.full-article'),
-      btnClose: document.querySelector('.modal-footer').querySelector('button'),
+      btnClose: document.querySelector('.modal-footer button'),
     },
     initialTextFields: {
       pageTitle: document.querySelector('title'),
