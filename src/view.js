@@ -156,6 +156,7 @@ const renderAllTexts = (state, elements) => {
   renderFeedback(state.form, elements);
   renderFeeds(state.feeds, elements);
   renderPosts(state, elements);
+  elements.input.focus();
 };
 
 const initView = (state, elements) => {
