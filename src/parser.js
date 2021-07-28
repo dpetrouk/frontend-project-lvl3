@@ -1,5 +1,3 @@
-import i18n from 'i18next';
-
 const getTextContentFromWorkingSelector = (item, selectors) => selectors
   .reduce((acc, selector) => {
     const selectedElement = item.querySelector(selector);
@@ -10,7 +8,9 @@ const parseRSS = (data) => {
   try {
     const parser = new DOMParser();
     const documentElement = parser.parseFromString(data, 'text/xml');
+    console.log('parsing: select rssElement from received RSS DOM');
     const rssElement = documentElement.querySelector('rss') || documentElement.querySelector('feed');
+    console.log('parsing: RSS feed');
     const rss = {
       channel: {
         title: rssElement.querySelector('title').textContent,
@@ -18,10 +18,12 @@ const parseRSS = (data) => {
       },
       posts: [],
     };
+    console.log('parsing: collect items');
     const items = ['item', 'entry'].reduce((acc, selector) => {
-      const selectedElements = rssElement.querySelectorAll(selector)
+      const selectedElements = rssElement.querySelectorAll(selector);
       return selectedElements.length > 0 ? [...selectedElements] : acc;
     }, []);
+    console.log('parsing: RSS posts');
     rss.posts = items.reduceRight((acc, item) => {
       const post = {
         title: item.querySelector('title').textContent,
@@ -32,7 +34,8 @@ const parseRSS = (data) => {
       return [...acc, post];
     }, []);
     return rss;
-  } catch(err) {
+  } catch (err) {
+    console.log('parsing: error: \n', err);
     throw new Error('form.feedback.errors.resource');
   }
 };
