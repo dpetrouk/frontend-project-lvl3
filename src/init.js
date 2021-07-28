@@ -1,14 +1,15 @@
-import axios from 'axios';
 import i18n from 'i18next';
 import * as yup from 'yup';
+import axios from 'axios';
+import Modal from 'bootstrap/js/dist/modal';
 import resources from './locales/resources.js';
 import initView from './view.js';
 import parseRSS from './parser.js';
-import Modal from 'bootstrap/js/dist/modal';
 
 const proxy = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
 
 const getFeed = (feed) => {
+  console.log('Get feed: ', feed);
   const proxiedUrl = `${proxy}${encodeURIComponent(feed)}`;
   return axios.get(proxiedUrl)
     .then((response) => response.data.contents)
@@ -21,11 +22,11 @@ const getFeed = (feed) => {
 };
 
 const app = () => {
+  console.log('App was initiated');
   const languages = ['ru', 'en'];
   const defaultLanguage = languages[0];
   i18n.init({
     lng: defaultLanguage,
-    //debug: true,
     resources,
   });
 
@@ -47,15 +48,15 @@ const app = () => {
     },
     modal: {
       selectedPost: null,
-    }
+    },
   };
-  const elements = { 
+  const elements = {
     form: document.querySelector('.rss-form'),
     input: document.getElementById('url-input'),
     submitBtn: document.querySelector('button[type="submit"]'),
-    feedbackElement: document.querySelector('.feedback'),
-    feedsElement: document.querySelector('.feeds'),
-    postsElement: document.querySelector('.posts'),
+    feedback: document.querySelector('.feedback'),
+    feeds: document.querySelector('.feeds'),
+    posts: document.querySelector('.posts'),
     modal: {
       window: document.querySelector('.modal'),
       title: document.querySelector('.modal-title'),
@@ -63,35 +64,27 @@ const app = () => {
       btnOpen: document.querySelector('.full-article'),
       btnClose: document.querySelector('.modal-footer').querySelector('button'),
     },
-    textFields: {
+    initialTextFields: {
       pageTitle: document.querySelector('title'),
       header: document.querySelector('h1.display-3'),
       pageDescription: document.querySelector('p.lead'),
       labelForInput: document.querySelector('label[for="url-input"]'),
-      examples: document.querySelector('p.text-muted span'),
+      examplesHeader: document.querySelector('p.text-muted span'),
     },
     btnAdd: document.querySelector('#btnAdd'),
     languageSelector: document.querySelector('#language-selector'),
   };
-  Modal.getInstance(elements.modal);
   const watched = initView(state, elements);
 
-  // Удалить позже
-  const examplesElement = document.querySelector('p.text-muted');
-  examplesElement.addEventListener('click', (e) => {
-    e.preventDefault();
-    const { target } = e;
-    if (e.target.nodeName === 'A') {
-      elements.input.value = target.textContent;
-    }
-  });
-
   yup.setLocale({
+    mixed: {
+      required: 'form.feedback.errors.validation.required',
+    },
     string: {
       url: 'form.feedback.errors.validation.url',
     },
   });
-  const schema = yup.string().url();
+  const schema = yup.string().required().url();
   const validate = (value) => schema.validate(value)
     .then(() => {
       if (watched.addedUrls.includes(value)) {
@@ -106,23 +99,40 @@ const app = () => {
         .then((data) => {
           const { posts } = parseRSS(data);
           const newPosts = posts.filter(({ id }) => !watched.postsIds.includes(id));
+          if (newPosts.length === 0) {
+            return;
+          }
           watched.posts.push(...newPosts);
           const newPostsIds = newPosts.map(({ id }) => id);
           watched.postsIds.push(...newPostsIds);
         })
         .then(() => updateFeed(sourceUrl))
-        .catch((err) => console.log(err));
+        .catch((err) => console.log('Updating error: ', err));
     }, 5000);
   };
 
   elements.languageSelector.addEventListener('click', (e) => {
     const { language } = e.target.dataset;
     if (languages.includes(language)) {
-      i18n.changeLanguage(language).then(() => watched.language = language);
+      i18n.changeLanguage(language).then(() => {
+        watched.language = language;
+      });
+      console.log('Language was selected: ', language);
+    }
+  });
+
+  // Удалить позже
+  elements.initialTextFields.examplesHeader.parentElement.addEventListener('click', (e) => {
+    e.preventDefault();
+    const { target } = e;
+    if (e.target.nodeName === 'A') {
+      elements.input.value = target.textContent;
+      console.log('Example link was clicked');
     }
   });
 
   elements.form.addEventListener('submit', (e) => {
+    console.log('Clicked "submit"');
     e.preventDefault();
     const formData = new FormData(elements.form);
     const sourceUrl = formData.get('url');
@@ -132,6 +142,7 @@ const app = () => {
         watched.form.feedback = null;
       })
       .catch((err) => {
+        console.log('After sumbitting - first catch block, err: \n', err);
         watched.form.fields.url.valid = false;
         throw err;
       })
@@ -151,17 +162,23 @@ const app = () => {
       })
       .then(() => updateFeed(sourceUrl))
       .catch((err) => {
+        console.log('After sumbitting - second catch block, err: \n', err);
         watched.form.feedback = err.message;
         watched.form.status = 'failed';
       });
   });
-  elements.postsElement.addEventListener('click', (e) => {
+
+  elements.posts.addEventListener('click', (e) => {
     const id = Number(e.target.dataset.id);
     if (id && !watched.visited.includes(id)) {
       watched.visited.push(id);
+      console.log('Link was visited');
     }
   });
+
+  Modal.getInstance(elements.modal);
   elements.modal.window.addEventListener('show.bs.modal', (e) => {
+    console.log('Open modal');
     const { id } = e.relatedTarget.dataset;
     if (id) {
       watched.modal.selectedPost = id;
