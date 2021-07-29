@@ -140,32 +140,10 @@ const renderModal = (state, elements) => {
   elements.modal.btnOpen.href = link;
 };
 
-const renderInitialTexts = (elements) => {
-  elements.initialTextFields.pageTitle.textContent = i18n.t('pageTitle');
-  elements.initialTextFields.header.textContent = i18n.t('pageTitle');
-  elements.initialTextFields.pageDescription.textContent = i18n.t('pageDescription');
-  elements.initialTextFields.labelForInput.textContent = i18n.t('form.labelForInput');
-  elements.initialTextFields.examplesHeader.textContent = i18n.t('form.examples');
-  elements.btnAdd.textContent = i18n.t('form.btnAdd');
-  elements.modal.btnOpen.textContent = i18n.t('modal.btnOpen');
-  elements.modal.btnClose.textContent = i18n.t('modal.btnClose');
-};
-
-const renderAllTexts = (state, elements) => {
-  renderInitialTexts(elements);
-  renderFeedback(state.form, elements);
-  renderFeeds(state.feeds, elements);
-  renderPosts(state, elements);
-  elements.input.focus();
-};
-
 const initView = (state, elements) => {
-  elements.input.focus();
-  // elements.form.setAttribute('autocomplete', 'off');
-  renderInitialTexts(elements);
+  // elements.input.focus();
 
   const mapping = {
-    'language': () => renderAllTexts(state, elements),
     'form.status': () => renderForm(state.form, elements),
     'form.feedback': () => renderFeedback(state.form, elements),
     'form.fields.url': () => renderFormErrors(state.form, elements),

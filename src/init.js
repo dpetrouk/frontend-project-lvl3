@@ -23,15 +23,13 @@ const getFeed = (feed) => {
 
 const app = () => {
   console.log('App was initiated');
-  const languages = ['ru', 'en'];
-  const defaultLanguage = languages[0];
+  const defaultLanguage = 'ru';
   i18n.init({
     lng: defaultLanguage,
     resources,
   });
 
   const state = {
-    language: defaultLanguage,
     feeds: [],
     posts: [],
     postsIds: [],
@@ -64,15 +62,6 @@ const app = () => {
       btnOpen: document.querySelector('.full-article'),
       btnClose: document.querySelector('.modal-footer button'),
     },
-    initialTextFields: {
-      pageTitle: document.querySelector('title'),
-      header: document.querySelector('h1.display-3'),
-      pageDescription: document.querySelector('p.lead'),
-      labelForInput: document.querySelector('label[for="url-input"]'),
-      examplesHeader: document.querySelector('p.text-muted span'),
-    },
-    btnAdd: document.querySelector('#btnAdd'),
-    languageSelector: document.querySelector('#language-selector'),
   };
   const watched = initView(state, elements);
 
@@ -111,18 +100,9 @@ const app = () => {
     }, 5000);
   };
 
-  elements.languageSelector.addEventListener('click', (e) => {
-    const { language } = e.target.dataset;
-    if (languages.includes(language)) {
-      i18n.changeLanguage(language).then(() => {
-        watched.language = language;
-      });
-      console.log('Language was selected: ', language);
-    }
-  });
-
   // Удалить позже
-  elements.initialTextFields.examplesHeader.parentElement.addEventListener('click', (e) => {
+  /*
+  document.querySelector('p.text-muted span').parentElement.addEventListener('click', (e) => {
     e.preventDefault();
     const { target } = e;
     if (e.target.nodeName === 'A') {
@@ -130,6 +110,7 @@ const app = () => {
       console.log('Example link was clicked');
     }
   });
+  */
 
   elements.form.addEventListener('submit', (e) => {
     console.log('Clicked "submit"');
