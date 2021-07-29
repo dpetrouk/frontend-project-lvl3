@@ -26,7 +26,7 @@ const renderForm = (form, elements) => {
   switch (form.status) {
     case 'filling':
       elements.submitBtn.disabled = false;
-      elements.input.disabled = false;
+      elements.input.readOnly = false;
       elements.input.value = '';
       elements.input.focus();
       elements.feedback.classList.remove('text-danger');
@@ -34,14 +34,14 @@ const renderForm = (form, elements) => {
       break;
     case 'failed':
       elements.submitBtn.disabled = false;
-      elements.input.disabled = false;
+      elements.input.readOnly = false;
       elements.input.select();
       elements.feedback.classList.remove('text-success');
       elements.feedback.classList.add('text-danger');
       break;
     case 'loading':
       elements.submitBtn.disabled = true;
-      elements.input.disabled = true;
+      elements.input.readOnly = true;
       break;
     default:
       throw new Error(`Unknown form status: ${form.status}`);
