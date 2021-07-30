@@ -9,7 +9,6 @@ import parseRSS from './parser.js';
 const proxy = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
 
 const getFeed = (feed) => {
-  console.log('Get feed: ', feed);
   const proxiedUrl = `${proxy}${encodeURIComponent(feed)}`;
   return axios.get(proxiedUrl)
     .then((response) => response.data.contents)
@@ -22,7 +21,6 @@ const getFeed = (feed) => {
 };
 
 const app = () => {
-  console.log('App was initiated');
   const defaultLanguage = 'ru';
   i18n.init({
     lng: defaultLanguage,
@@ -100,20 +98,7 @@ const app = () => {
     }, 5000);
   };
 
-  // Удалить позже
-  /*
-  document.querySelector('p.text-muted span').parentElement.addEventListener('click', (e) => {
-    e.preventDefault();
-    const { target } = e;
-    if (e.target.nodeName === 'A') {
-      elements.input.value = target.textContent;
-      console.log('Example link was clicked');
-    }
-  });
-  */
-
   elements.form.addEventListener('submit', (e) => {
-    console.log('Clicked "submit"');
     e.preventDefault();
     const formData = new FormData(elements.form);
     const sourceUrl = formData.get('url');
@@ -123,7 +108,6 @@ const app = () => {
         watched.form.feedback = null;
       })
       .catch((err) => {
-        console.log('After sumbitting - first catch block, err: \n', err);
         watched.form.fields.url.valid = false;
         throw err;
       })
@@ -143,7 +127,6 @@ const app = () => {
       })
       .then(() => updateFeed(sourceUrl))
       .catch((err) => {
-        console.log('After sumbitting - second catch block, err: \n', err);
         watched.form.feedback = err.message;
         watched.form.status = 'failed';
       });
@@ -153,13 +136,11 @@ const app = () => {
     const id = Number(e.target.dataset.id);
     if (id && !watched.visited.includes(id)) {
       watched.visited.push(id);
-      console.log('Link was visited');
     }
   });
 
   Modal.getInstance(elements.modal);
   elements.modal.window.addEventListener('show.bs.modal', (e) => {
-    console.log('Open modal');
     const { id } = e.relatedTarget.dataset;
     if (id) {
       watched.modal.selectedPost = id;

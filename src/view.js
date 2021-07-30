@@ -5,7 +5,6 @@ import onChange from 'on-change';
 import i18n from 'i18next';
 
 const renderFeedback = (form, elements) => {
-  console.log('rendering feedback: \n', form.feedback, '\n', i18n.t(form.feedback));
   elements.feedback.textContent = i18n.t(form.feedback);
 };
 
@@ -155,7 +154,6 @@ const initView = (state, elements) => {
 
   const watchedState = onChange(state, (path) => {
     if (mapping[path]) {
-      console.log('state change: ', path);
       mapping[path]();
     }
   });
