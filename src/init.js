@@ -21,13 +21,15 @@ const getFeed = (feed) => {
 };
 
 const app = () => {
-  const defaultLanguage = 'ru';
+  const languages = ['ru', 'en'];
+  const defaultLanguage = languages[0];
   i18n.init({
     lng: defaultLanguage,
     resources,
   });
 
   const state = {
+    language: defaultLanguage,
     feeds: [],
     posts: [],
     postsIds: [],
@@ -45,6 +47,9 @@ const app = () => {
     modal: {
       selectedPost: null,
     },
+    examples: {
+      selected: null,
+    },
   };
   const elements = {
     form: document.querySelector('.rss-form'),
@@ -60,6 +65,15 @@ const app = () => {
       btnOpen: document.querySelector('.full-article'),
       btnClose: document.querySelector('.modal-footer button'),
     },
+    initialTextFields: {
+      pageTitle: document.querySelector('title'),
+      header: document.querySelector('h1.display-3'),
+      pageDescription: document.querySelector('p.lead'),
+      labelForInput: document.querySelector('label[for="url-input"]'),
+      examplesHeader: document.querySelector('p.text-muted span'),
+    },
+    btnAdd: document.querySelector('#btnAdd'),
+    languageSelector: document.querySelector('#language-selector'),
   };
   const watched = initView(state, elements);
 
@@ -97,6 +111,24 @@ const app = () => {
         .catch((err) => console.log('Updating error: ', err));
     }, 5000);
   };
+
+  elements.languageSelector.addEventListener('click', (e) => {
+    const { language } = e.target.dataset;
+    if (languages.includes(language)) {
+      i18n.changeLanguage(language).then(() => {
+        watched.language = language;
+      });
+    }
+  });
+
+  // Выбор фидов-примеров
+  elements.initialTextFields.examplesHeader.parentElement.addEventListener('click', (e) => {
+    e.preventDefault();
+    const { target } = e;
+    if (e.target.nodeName === 'A') {
+      watched.examples.selected = target.textContent;
+    }
+  });
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
