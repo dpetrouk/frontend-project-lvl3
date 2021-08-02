@@ -6,6 +6,9 @@ import resources from './locales/resources.js';
 import initView from './view.js';
 import parseRSS from './parser.js';
 
+const languages = ['ru', 'en'];
+const defaultLanguage = languages[0];
+
 const proxy = new URL('https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=');
 
 const getFeed = (feed) => {
@@ -23,13 +26,6 @@ const getFeed = (feed) => {
 };
 
 const app = () => {
-  const languages = ['ru', 'en'];
-  const defaultLanguage = languages[0];
-  i18n.init({
-    lng: defaultLanguage,
-    resources,
-  });
-
   const state = {
     language: defaultLanguage,
     feeds: [],
@@ -182,4 +178,15 @@ const app = () => {
   });
 };
 
-export default app;
+const init = () => {
+  i18n
+    .init({
+      lng: defaultLanguage,
+      resources,
+    })
+    .then(() => {
+      app();
+    });
+};
+
+export default init;
