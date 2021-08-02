@@ -179,9 +179,7 @@ const initView = (state, elements) => {
   };
 
   const watchedState = onChange(state, (path) => {
-    if (mapping[path]) {
-      mapping[path]();
-    }
+    mapping[path]?.();
   });
 
   return watchedState;
