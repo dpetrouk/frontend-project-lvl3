@@ -6,10 +6,12 @@ import resources from './locales/resources.js';
 import initView from './view.js';
 import parseRSS from './parser.js';
 
-const proxy = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
+const proxy = new URL('https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=');
 
 const getFeed = (feed) => {
-  const proxiedUrl = `${proxy}${encodeURIComponent(feed)}`;
+  // proxy.searchParams.set('url', encodeURIComponent(feed));
+  // const proxiedUrl = proxy.toString();
+  const proxiedUrl = `${proxy.toString()}${encodeURIComponent(feed)}`;
   return axios.get(proxiedUrl)
     .then((response) => response.data.contents)
     .catch((err) => {
