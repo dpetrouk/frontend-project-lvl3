@@ -110,7 +110,7 @@ const renderPosts = ({ visited, posts }, elements) => {
     const { title, link } = post;
     const li = templates.li.cloneNode();
     const linkElement = templates.link.cloneNode();
-    if (visited.includes(id)) {
+    if (visited.has(id)) {
       linkElement.classList.add('fw-normal', 'link-secondary');
     } else {
       linkElement.classList.add('fw-bold');

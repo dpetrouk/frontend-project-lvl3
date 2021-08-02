@@ -32,7 +32,7 @@ const app = () => {
     posts: [],
     postsIds: [],
     addedUrls: [],
-    visited: [],
+    visited: new Set(),
     form: {
       status: 'filling',
       fields: {
@@ -164,8 +164,8 @@ const app = () => {
 
   elements.posts.addEventListener('click', (e) => {
     const id = Number(e.target.dataset.id);
-    if (id && !watched.visited.includes(id)) {
-      watched.visited.push(id);
+    if (id) {
+      watched.visited.add(id);
     }
   });
 
