@@ -15,7 +15,7 @@ const getFeed = (feed) => {
   return axios.get(proxiedUrl)
     .then((response) => response.data.contents)
     .catch((err) => {
-      if (err.message === 'Network Error') {
+      if (!err.status) {
         throw new Error('form.feedback.errors.network');
       }
       throw err;
