@@ -4,7 +4,7 @@ import axios from 'axios';
 import Modal from 'bootstrap/js/dist/modal';
 import resources from './locales/resources.js';
 import initView from './view.js';
-import parseRSS from './parser.js';
+import parseRSS from './rssParser.js';
 
 const languages = ['ru', 'en'];
 const defaultLanguage = languages[0];
