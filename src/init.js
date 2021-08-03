@@ -1,4 +1,4 @@
-import i18n from 'i18next';
+import i18next from 'i18next';
 import * as yup from 'yup';
 import axios from 'axios';
 import Modal from 'bootstrap/js/dist/modal';
@@ -47,7 +47,7 @@ const generateFeed = (data) => {
   }
 };
 
-const app = () => {
+const runApp = (i18nextInstance) => {
   const state = {
     language: defaultLanguage,
     feeds: [],
@@ -95,7 +95,7 @@ const app = () => {
     btnAdd: document.querySelector('#btnAdd'),
     languageSelector: document.querySelector('#language-selector'),
   };
-  const watched = initView(state, elements);
+  const watched = initView(state, elements, i18nextInstance);
 
   yup.setLocale({
     mixed: {
@@ -135,7 +135,7 @@ const app = () => {
   elements.languageSelector.addEventListener('click', (e) => {
     const { language } = e.target.dataset;
     if (languages.includes(language)) {
-      i18n.changeLanguage(language).then(() => {
+      i18nextInstance.changeLanguage(language).then(() => {
         watched.language = language;
       });
     }
@@ -201,13 +201,14 @@ const app = () => {
 };
 
 const init = () => {
-  i18n
-    .init({
-      lng: defaultLanguage,
-      resources,
-    })
+  const i18nextInstance = i18next.createInstance({
+    lng: defaultLanguage,
+    resources,
+  });
+  i18nextInstance
+    .init()
     .then(() => {
-      app();
+      runApp(i18nextInstance);
     });
 };
 

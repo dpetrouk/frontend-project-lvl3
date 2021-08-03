@@ -2,10 +2,9 @@
 /* eslint quote-props: ["error", "consistent-as-needed"] */
 
 import onChange from 'on-change';
-import i18n from 'i18next';
 
-const renderFeedback = (form, elements) => {
-  elements.feedback.textContent = i18n.t(form.feedback);
+const renderFeedback = (form, elements, i18nextInstance) => {
+  elements.feedback.textContent = i18nextInstance.t(form.feedback);
 };
 
 const renderFormErrors = (form, elements) => {
@@ -47,10 +46,10 @@ const renderForm = (form, elements) => {
   }
 };
 
-const renderFeeds = (feeds, elements) => {
+const renderFeeds = (feeds, elements, i18nextInstance) => {
   const container = document.createElement('div');
   container.classList.add('card', 'border-0');
-  container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18n.t('feeds.header')}</h2</div>`;
+  container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18nextInstance.t('feeds.header')}</h2</div>`;
   const ul = document.createElement('ul');
   ul.classList.add('list-group', 'border-0', 'rounded-0');
   feeds.forEach((channel) => {
@@ -67,7 +66,7 @@ const renderFeeds = (feeds, elements) => {
     ul.prepend(li);
   });
   container.append(ul);
-  if (container.textContent !== i18n.t('feeds.header')) {
+  if (container.textContent !== i18nextInstance.t('feeds.header')) {
     elements.feeds.innerHTML = '';
     elements.feeds.append(container);
   }
@@ -95,10 +94,10 @@ const createButtonElement = () => {
   return btn;
 };
 
-const renderPosts = ({ visited, posts }, elements) => {
+const renderPosts = ({ visited, posts }, elements, i18nextInstance) => {
   const container = document.createElement('div');
   container.classList.add('card', 'border-0');
-  container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18n.t('posts.header')}</h2</div>`;
+  container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18nextInstance.t('posts.header')}</h2</div>`;
   const ul = document.createElement('ul');
   ul.classList.add('list-group', 'border-0', 'rounded-0');
   const templates = {
@@ -119,13 +118,13 @@ const renderPosts = ({ visited, posts }, elements) => {
     linkElement.textContent = title;
     linkElement.setAttribute('data-id', `${id}`);
     const btn = templates.btn.cloneNode();
-    btn.textContent = i18n.t('posts.btnShow');
+    btn.textContent = i18nextInstance.t('posts.btnShow');
     btn.setAttribute('data-id', `${id}`);
     li.append(linkElement, btn);
     ul.prepend(li);
   });
   container.append(ul);
-  if (container.textContent !== i18n.t('posts.header')) {
+  if (container.textContent !== i18nextInstance.t('posts.header')) {
     elements.posts.innerHTML = '';
     elements.posts.append(container);
   }
@@ -144,37 +143,37 @@ const addLinkToInput = (state, elements) => {
   elements.input.focus();
 };
 
-const renderInitialTexts = (elements) => {
-  elements.initialTextFields.pageTitle.textContent = i18n.t('pageTitle');
-  elements.initialTextFields.header.textContent = i18n.t('pageTitle');
-  elements.initialTextFields.pageDescription.textContent = i18n.t('pageDescription');
-  elements.initialTextFields.labelForInput.textContent = i18n.t('form.labelForInput');
-  elements.initialTextFields.examplesHeader.textContent = i18n.t('form.examples');
-  elements.btnAdd.textContent = i18n.t('form.btnAdd');
-  elements.modal.btnOpen.textContent = i18n.t('modal.btnOpen');
-  elements.modal.btnClose.textContent = i18n.t('modal.btnClose');
+const renderInitialTexts = (elements, i18nextInstance) => {
+  elements.initialTextFields.pageTitle.textContent = i18nextInstance.t('pageTitle');
+  elements.initialTextFields.header.textContent = i18nextInstance.t('pageTitle');
+  elements.initialTextFields.pageDescription.textContent = i18nextInstance.t('pageDescription');
+  elements.initialTextFields.labelForInput.textContent = i18nextInstance.t('form.labelForInput');
+  elements.initialTextFields.examplesHeader.textContent = i18nextInstance.t('form.examples');
+  elements.btnAdd.textContent = i18nextInstance.t('form.btnAdd');
+  elements.modal.btnOpen.textContent = i18nextInstance.t('modal.btnOpen');
+  elements.modal.btnClose.textContent = i18nextInstance.t('modal.btnClose');
 };
 
-const renderAllTexts = (state, elements) => {
-  renderInitialTexts(elements);
-  renderFeedback(state.form, elements);
-  renderFeeds(state.feeds, elements);
-  renderPosts(state, elements);
+const renderAllTexts = (state, elements, i18nextInstance) => {
+  renderInitialTexts(elements, i18nextInstance);
+  renderFeedback(state.form, elements, i18nextInstance);
+  renderFeeds(state.feeds, elements, i18nextInstance);
+  renderPosts(state, elements, i18nextInstance);
   elements.input.focus();
 };
 
-const initView = (state, elements) => {
-  renderInitialTexts(elements);
+const initView = (state, elements, i18nextInstance) => {
+  renderInitialTexts(elements, i18nextInstance);
 
   const mapping = {
-    'language': () => renderAllTexts(state, elements),
+    'language': () => renderAllTexts(state, elements, i18nextInstance),
     'examples.selected': () => addLinkToInput(state, elements),
     'form.status': () => renderForm(state.form, elements),
-    'form.feedback': () => renderFeedback(state.form, elements),
+    'form.feedback': () => renderFeedback(state.form, elements, i18nextInstance),
     'form.fields.url': () => renderFormErrors(state.form, elements),
-    'feeds': () => renderFeeds(state.feeds, elements),
-    'posts': () => renderPosts(state, elements),
-    'visited': () => renderPosts(state, elements),
+    'feeds': () => renderFeeds(state.feeds, elements, i18nextInstance),
+    'posts': () => renderPosts(state, elements, i18nextInstance),
+    'visited': () => renderPosts(state, elements, i18nextInstance),
     'modal.selectedPost': () => renderModal(state, elements),
   };
 
