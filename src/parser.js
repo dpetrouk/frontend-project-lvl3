@@ -1,38 +1,33 @@
-const getTextContentFromWorkingSelector = (item, selectors) => selectors
-  .reduce((acc, selector) => {
-    const selectedElement = item.querySelector(selector);
-    return selectedElement ? selectedElement.textContent : acc;
-  }, '');
+const generateItem = (element) => {
+  const children = [...element.children];
+  const item = children.reduce((acc, child) => {
+    const name = child.nodeName;
+    return { ...acc, [name]: child.textContent };
+  }, {});
+  return item;
+};
 
-const parseRSS = (data) => {
-  try {
-    const parser = new DOMParser();
-    const documentElement = parser.parseFromString(data, 'text/xml');
-    const rssElement = documentElement.querySelector('rss') || documentElement.querySelector('feed');
-    const rss = {
-      channel: {
-        title: rssElement.querySelector('title').textContent,
-        description: rssElement.querySelector('description') ? rssElement.querySelector('description').textContent : '',
-      },
-      posts: [],
-    };
-    const items = ['item', 'entry'].reduce((acc, selector) => {
-      const selectedElements = rssElement.querySelectorAll(selector);
-      return selectedElements.length > 0 ? [...selectedElements] : acc;
-    }, []);
-    rss.posts = items.reduceRight((acc, item) => {
-      const post = {
-        title: item.querySelector('title').textContent,
-        description: getTextContentFromWorkingSelector(item, ['description', 'content']),
-        link: item.querySelector('link').textContent || item.querySelector('link').getAttribute('href'),
-        id: getTextContentFromWorkingSelector(item, ['id', 'post-id', 'guid']),
-      };
-      return [...acc, post];
-    }, []);
-    return rss;
-  } catch (err) {
-    throw new Error('form.feedback.errors.resource');
-  }
+const generateRSSObject = (rssElement) => {
+  const channelElement = rssElement.querySelector('channel');
+  const channelChildren = [...channelElement.children];
+  const rssObject = channelChildren.reduce((acc, child) => {
+    const name = child.nodeName;
+    if (name !== 'item') {
+      return { ...acc, [name]: child.textContent };
+    }
+    const accItems = acc.items ?? [];
+    const item = generateItem(child);
+    return { ...acc, items: [...accItems, item] };
+  }, {});
+  return rssObject;
+};
+
+const parseRSS = (rssString) => {
+  const domParser = new DOMParser();
+  const rssDOM = domParser.parseFromString(rssString, 'text/xml');
+  const rssElement = rssDOM.querySelector('rss');
+  const rssObject = generateRSSObject(rssElement);
+  return rssObject;
 };
 
 export default parseRSS;

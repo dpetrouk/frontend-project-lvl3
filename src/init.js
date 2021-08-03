@@ -25,6 +25,28 @@ const getFeed = (feed) => {
     });
 };
 
+const generateFeed = (data) => {
+  try {
+    const parsed = parseRSS(data);
+    const channel = {
+      title: parsed.title,
+      description: parsed.description,
+    };
+    const posts = parsed.items.reduce((acc, item) => {
+      const post = {
+        title: item.title,
+        description: item.description,
+        link: item.link,
+        id: item.guid,
+      };
+      return [post, ...acc];
+    }, []);
+    return { channel, posts };
+  } catch {
+    throw new Error('form.feedback.errors.resource');
+  }
+};
+
 const app = () => {
   const state = {
     language: defaultLanguage,
@@ -96,7 +118,7 @@ const app = () => {
     setTimeout(() => {
       getFeed(sourceUrl)
         .then((data) => {
-          const { posts } = parseRSS(data);
+          const { posts } = generateFeed(data);
           const newPosts = posts.filter(({ id }) => !watched.postsIds.includes(id));
           if (newPosts.length === 0) {
             return;
@@ -147,7 +169,7 @@ const app = () => {
       })
       .then((data) => {
         watched.form.status = 'filling';
-        const { channel, posts } = parseRSS(data);
+        const { channel, posts } = generateFeed(data);
         watched.feeds.push(channel);
         watched.posts.push(...posts);
         const postsIds = posts.map(({ id }) => id);
