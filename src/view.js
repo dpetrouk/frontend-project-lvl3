@@ -47,6 +47,9 @@ const renderForm = (form, elements) => {
 };
 
 const renderFeeds = (feeds, elements, i18nextInstance) => {
+  if (feeds.length === 0) {
+    return;
+  }
   const container = document.createElement('div');
   container.classList.add('card', 'border-0');
   container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18nextInstance.t('feeds.header')}</h2</div>`;
@@ -66,10 +69,8 @@ const renderFeeds = (feeds, elements, i18nextInstance) => {
     ul.prepend(li);
   });
   container.append(ul);
-  if (container.textContent !== i18nextInstance.t('feeds.header')) {
-    elements.feeds.innerHTML = '';
-    elements.feeds.append(container);
-  }
+  elements.feeds.innerHTML = '';
+  elements.feeds.append(container);
 };
 
 const createPostContainer = () => {
@@ -95,6 +96,9 @@ const createButtonElement = () => {
 };
 
 const renderPosts = ({ visited, posts }, elements, i18nextInstance) => {
+  if (posts.length === 0) {
+    return;
+  }
   const container = document.createElement('div');
   container.classList.add('card', 'border-0');
   container.innerHTML = `<div class="card-body"><h2 class="card-title h4">${i18nextInstance.t('posts.header')}</h2</div>`;
@@ -124,10 +128,8 @@ const renderPosts = ({ visited, posts }, elements, i18nextInstance) => {
     ul.prepend(li);
   });
   container.append(ul);
-  if (container.textContent !== i18nextInstance.t('posts.header')) {
-    elements.posts.innerHTML = '';
-    elements.posts.append(container);
-  }
+  elements.posts.innerHTML = '';
+  elements.posts.append(container);
 };
 
 const renderModal = (state, elements) => {
