@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: ["error", { "props": false }] */
+
 import i18next from 'i18next';
 import * as yup from 'yup';
 import axios from 'axios';
@@ -16,12 +18,12 @@ const proxify = (feed) => {
 };
 
 const getFeed = (feed) => {
-  const proxifiedUrl = proxify(feed);
-  return axios.get(proxifiedUrl)
+  const proxifiedFeed = proxify(feed);
+  return axios.get(proxifiedFeed)
     .then((response) => response.data.contents)
     .catch((err) => {
-      if (!err.status) {
-        throw new Error('form.feedback.errors.network');
+      if (!err.response) {
+        err.message = 'form.feedback.errors.network';
       }
       throw err;
     });
