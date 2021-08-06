@@ -9,13 +9,15 @@ import parseRSS from './rssParser.js';
 const languages = ['ru', 'en'];
 const defaultLanguage = languages[0];
 
-const proxy = new URL('https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=');
+const proxify = (feed) => {
+  const proxy = new URL('https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=');
+  proxy.searchParams.set('url', feed);
+  return proxy.toString();
+};
 
 const getFeed = (feed) => {
-  // proxy.searchParams.set('url', encodeURIComponent(feed));
-  // const proxiedUrl = proxy.toString();
-  const proxiedUrl = `${proxy.toString()}${encodeURIComponent(feed)}`;
-  return axios.get(proxiedUrl)
+  const proxifiedUrl = proxify(feed);
+  return axios.get(proxifiedUrl)
     .then((response) => response.data.contents)
     .catch((err) => {
       if (!err.status) {
