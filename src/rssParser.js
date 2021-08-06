@@ -8,17 +8,17 @@ const generateItem = (element) => {
 };
 
 const generateRSSObject = (rssElement) => {
-  const channelElement = rssElement.querySelector('channel');
-  const channelChildren = [...channelElement.children];
-  const rssObject = channelChildren.reduce((acc, child) => {
-    const name = child.nodeName;
-    if (name !== 'item') {
-      return { ...acc, [name]: child.textContent };
-    }
-    const accItems = acc.items ?? [];
-    const item = generateItem(child);
-    return { ...acc, items: [...accItems, item] };
-  }, {});
+  const title = rssElement.querySelector('title').textContent;
+  const link = rssElement.querySelector('link').textContent;
+  const description = rssElement.querySelector('description').textContent;
+  const itemElements = rssElement.querySelectorAll('item');
+  const items = [...itemElements].map((item) => generateItem(item));
+  const rssObject = {
+    title,
+    link,
+    description,
+    items,
+  };
   return rssObject;
 };
 
