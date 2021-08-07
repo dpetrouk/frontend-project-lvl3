@@ -107,19 +107,14 @@ const runApp = (i18nextInstance) => {
   yup.setLocale({
     mixed: {
       required: 'form.feedback.errors.validation.required',
+      notOneOf: 'form.feedback.errors.validation.uniqueness',
     },
     string: {
       url: 'form.feedback.errors.validation.url',
     },
   });
-  const schema = yup.string().required().url();
-  const validate = (value) => schema.validate(value)
-    .then(() => {
-      if (watched.addedUrls.includes(value)) {
-        throw new Error('form.feedback.errors.validation.uniqueness');
-      }
-      return null;
-    });
+  const schema = yup.lazy(() => yup.string().required().url().notOneOf(watched.addedUrls));
+  const validate = (value) => schema.validate(value);
 
   const updateFeed = (sourceUrl) => {
     setTimeout(() => {
@@ -153,6 +148,7 @@ const runApp = (i18nextInstance) => {
     e.preventDefault();
     const { target } = e;
     if (e.target.nodeName === 'A') {
+      watched.examples.selected = '';
       watched.examples.selected = target.textContent;
     }
   });
@@ -181,7 +177,6 @@ const runApp = (i18nextInstance) => {
         watched.posts.push(...posts);
         const postsIds = posts.map(({ id }) => id);
         watched.postsIds.push(...postsIds);
-        console.log(watched.postsIds);
         watched.addedUrls.push(sourceUrl);
         watched.form.feedback = 'form.feedback.success';
       })
