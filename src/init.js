@@ -29,23 +29,26 @@ const getFeed = (feed) => {
     });
 };
 
+const generatePosts = (items) => items.reduce((acc, item) => {
+  const { title, description, link } = item;
+  const post = {
+    title,
+    description,
+    link,
+    id: link ?? title ?? description,
+  };
+  return [post, ...acc];
+}, []);
+
 const generateFeed = (data) => {
   try {
-    const parsed = parseRSS(data);
-    const channel = {
-      title: parsed.title,
-      description: parsed.description,
+    const { title, description, items } = parseRSS(data);
+    return {
+      channel: {
+        title, description,
+      },
+      posts: generatePosts(items),
     };
-    const posts = parsed.items.reduce((acc, item) => {
-      const post = {
-        title: item.title,
-        description: item.description,
-        link: item.link,
-        id: item.guid,
-      };
-      return [post, ...acc];
-    }, []);
-    return { channel, posts };
   } catch {
     throw new Error('form.feedback.errors.resource');
   }
@@ -178,6 +181,7 @@ const runApp = (i18nextInstance) => {
         watched.posts.push(...posts);
         const postsIds = posts.map(({ id }) => id);
         watched.postsIds.push(...postsIds);
+        console.log(watched.postsIds);
         watched.addedUrls.push(sourceUrl);
         watched.form.feedback = 'form.feedback.success';
       })
