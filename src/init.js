@@ -59,7 +59,6 @@ const runApp = (i18nextInstance) => {
     language: defaultLanguage,
     feeds: [],
     posts: [],
-    postsIds: [],
     addedUrls: [],
     visited: new Set(),
     form: {
@@ -121,13 +120,12 @@ const runApp = (i18nextInstance) => {
       getFeed(sourceUrl)
         .then((data) => {
           const { posts } = generateFeed(data);
-          const newPosts = posts.filter(({ id }) => !watched.postsIds.includes(id));
+          const oldPostsIds = watched.posts.map(({ id }) => id);
+          const newPosts = posts.filter(({ id }) => !oldPostsIds.includes(id));
           if (newPosts.length === 0) {
             return;
           }
           watched.posts.push(...newPosts);
-          const newPostsIds = newPosts.map(({ id }) => id);
-          watched.postsIds.push(...newPostsIds);
         })
         .then(() => updateFeed(sourceUrl))
         .catch((err) => console.log('Updating error: ', err));
@@ -175,8 +173,6 @@ const runApp = (i18nextInstance) => {
         const { channel, posts } = generateFeed(data);
         watched.feeds.push(channel);
         watched.posts.push(...posts);
-        const postsIds = posts.map(({ id }) => id);
-        watched.postsIds.push(...postsIds);
         watched.addedUrls.push(sourceUrl);
         watched.form.feedback = 'form.feedback.success';
       })
