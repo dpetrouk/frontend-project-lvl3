@@ -23,7 +23,7 @@ const getFeed = (feed) => {
     .then((response) => response.data.contents)
     .catch((err) => {
       if (!err.response) {
-        err.message = 'form.feedback.errors.network';
+        err[Symbol('translationKey')] = 'form.feedback.errors.network';
       }
       throw err;
     });
@@ -49,8 +49,9 @@ const generateFeed = (data) => {
       },
       posts: generatePosts(items),
     };
-  } catch {
-    throw new Error('form.feedback.errors.resource');
+  } catch (err) {
+    err[Symbol('translationKey')] = 'form.feedback.errors.resource';
+    throw err;
   }
 };
 
@@ -103,17 +104,16 @@ const runApp = (i18nextInstance) => {
   };
   const watched = initView(state, elements, i18nextInstance);
 
-  yup.setLocale({
-    mixed: {
-      required: 'form.feedback.errors.validation.required',
-      notOneOf: 'form.feedback.errors.validation.uniqueness',
-    },
-    string: {
-      url: 'form.feedback.errors.validation.url',
-    },
-  });
+  const yupTranslationKeysMapping = {
+    required: 'form.feedback.errors.validation.required',
+    notOneOf: 'form.feedback.errors.validation.uniqueness',
+    url: 'form.feedback.errors.validation.url',
+  };
   const schema = yup.lazy(() => yup.string().required().url().notOneOf(watched.addedUrls));
-  const validate = (value) => schema.validate(value);
+  const validate = (value) => schema.validate(value).catch((err) => {
+    err[Symbol('translationKey')] = yupTranslationKeysMapping[err.type];
+    throw err;
+  });
 
   const updateFeed = (sourceUrl) => {
     setTimeout(() => {
@@ -178,7 +178,9 @@ const runApp = (i18nextInstance) => {
       })
       .then(() => updateFeed(sourceUrl))
       .catch((err) => {
-        watched.form.feedback = err.message;
+        const key = Object.getOwnPropertySymbols(err)
+          .find((item) => item.description === 'translationKey');
+        watched.form.feedback = err[key];
         watched.form.status = 'failed';
       });
   });
