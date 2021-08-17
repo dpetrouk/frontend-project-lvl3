@@ -204,7 +204,7 @@ const init = () => {
     lng: defaultLanguage,
     resources,
   });
-  i18nextInstance
+  return i18nextInstance
     .init()
     .then(() => {
       runApp(i18nextInstance);
