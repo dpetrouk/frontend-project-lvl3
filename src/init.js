@@ -35,7 +35,7 @@ const generatePosts = (items) => items.reduce((acc, item) => {
     title,
     description,
     link,
-    id: link ?? title ?? description,
+    id: link ?? title ?? description, // hash may be generated here instead
   };
   return [post, ...acc];
 }, []);
@@ -141,7 +141,7 @@ const runApp = (i18nextInstance) => {
     }
   });
 
-  // Выбор фидов-примеров
+  // Add handlers for examples
   elements.initialTextFields.examplesHeader.parentElement.addEventListener('click', (e) => {
     e.preventDefault();
     const { target } = e;
