@@ -159,12 +159,6 @@ const runApp = (i18nextInstance) => {
       .then(() => {
         watched.form.fields.url.valid = true;
         watched.form.feedback = null;
-      })
-      .catch((err) => {
-        watched.form.fields.url.valid = false;
-        throw err;
-      })
-      .then(() => {
         watched.form.status = 'loading';
         return getFeed(sourceUrl);
       })
@@ -178,6 +172,7 @@ const runApp = (i18nextInstance) => {
       })
       .then(() => updateFeed(sourceUrl))
       .catch((err) => {
+        watched.form.fields.url.valid = false;
         const key = Object.getOwnPropertySymbols(err)
           .find((item) => item.description === 'translationKey');
         watched.form.feedback = err[key];
