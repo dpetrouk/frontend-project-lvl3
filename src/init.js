@@ -17,16 +17,17 @@ const proxify = (feed) => {
   return proxy.toString();
 };
 
-const getFeed = (feed) => {
+const getFeed = async (feed) => {
   const proxifiedFeed = proxify(feed);
-  return axios.get(proxifiedFeed)
-    .then((response) => response.data.contents)
-    .catch((err) => {
-      if (!err.response) {
-        err[Symbol('translationKey')] = 'form.feedback.errors.network';
-      }
-      throw err;
-    });
+  try {
+    const response = await axios.get(proxifiedFeed);
+    return response.data.contents;
+  } catch (err) {
+    if (!err.response) {
+      err[Symbol('translationKey')] = 'form.feedback.errors.network';
+    }
+    throw err;
+  }
 };
 
 const generatePosts = (items) => items.reduce((acc, item) => {
@@ -116,28 +117,23 @@ const runApp = (i18nextInstance) => {
   });
 
   const updateFeed = (sourceUrl) => {
-    setTimeout(() => {
-      getFeed(sourceUrl)
-        .then((data) => {
-          const { posts } = generateFeed(data);
-          const oldPostsIds = watched.posts.map(({ id }) => id);
-          const newPosts = posts.filter(({ id }) => !oldPostsIds.includes(id));
-          if (newPosts.length === 0) {
-            return;
-          }
-          watched.posts.push(...newPosts);
-        })
-        .then(() => updateFeed(sourceUrl))
-        .catch((err) => console.log('Updating error: ', err));
+    setTimeout(async () => {
+      const data = await getFeed(sourceUrl);
+      const { posts } = generateFeed(data);
+      const oldPostsIds = watched.posts.map(({ id }) => id);
+      const newPosts = posts.filter(({ id }) => !oldPostsIds.includes(id));
+      if (newPosts.length !== 0) {
+        watched.posts.push(...newPosts);
+      }
+      updateFeed(sourceUrl);
     }, 5000);
   };
 
-  elements.languageSelector.addEventListener('click', (e) => {
+  elements.languageSelector.addEventListener('click', async (e) => {
     const { language } = e.target.dataset;
     if (languages.includes(language)) {
-      i18nextInstance.changeLanguage(language).then(() => {
-        watched.language = language;
-      });
+      await i18nextInstance.changeLanguage(language);
+      watched.language = language;
     }
   });
 
@@ -151,33 +147,30 @@ const runApp = (i18nextInstance) => {
     }
   });
 
-  elements.form.addEventListener('submit', (e) => {
+  elements.form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(elements.form);
     const sourceUrl = formData.get('url');
-    validate(sourceUrl)
-      .then(() => {
-        watched.form.fields.url.valid = true;
-        watched.form.feedback = null;
-        watched.form.status = 'loading';
-        return getFeed(sourceUrl);
-      })
-      .then((data) => {
-        watched.form.status = 'filling';
-        const { channel, posts } = generateFeed(data);
-        watched.feeds.push(channel);
-        watched.posts.push(...posts);
-        watched.addedUrls.push(sourceUrl);
-        watched.form.feedback = 'form.feedback.success';
-      })
-      .then(() => updateFeed(sourceUrl))
-      .catch((err) => {
-        watched.form.fields.url.valid = false;
-        const key = Object.getOwnPropertySymbols(err)
-          .find((item) => item.description === 'translationKey');
-        watched.form.feedback = err[key];
-        watched.form.status = 'failed';
-      });
+    try {
+      await validate(sourceUrl);
+      watched.form.fields.url.valid = true;
+      watched.form.feedback = null;
+      watched.form.status = 'loading';
+      const data = await getFeed(sourceUrl);
+      watched.form.status = 'filling';
+      const { channel, posts } = generateFeed(data);
+      watched.feeds.push(channel);
+      watched.posts.push(...posts);
+      watched.addedUrls.push(sourceUrl);
+      watched.form.feedback = 'form.feedback.success';
+      updateFeed(sourceUrl);
+    } catch (err) {
+      watched.form.fields.url.valid = false;
+      const key = Object.getOwnPropertySymbols(err)
+        .find((item) => item.description === 'translationKey');
+      watched.form.feedback = err[key];
+      watched.form.status = 'failed';
+    }
   });
 
   elements.posts.addEventListener('click', (e) => {
@@ -196,16 +189,13 @@ const runApp = (i18nextInstance) => {
   });
 };
 
-const init = () => {
+const init = async () => {
   const i18nextInstance = i18next.createInstance({
     lng: defaultLanguage,
     resources,
   });
-  return i18nextInstance
-    .init()
-    .then(() => {
-      runApp(i18nextInstance);
-    });
+  await i18nextInstance.init();
+  runApp(i18nextInstance);
 };
 
 export default init;
