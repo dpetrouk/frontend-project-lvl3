@@ -12,7 +12,7 @@ const languages = ['ru', 'en'];
 const defaultLanguage = languages[0];
 
 const proxify = (feed) => {
-  const proxy = new URL('https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=');
+  const proxy = new URL('https://allorigins.hexlet.app/get?disableCache=true&url=');
   proxy.searchParams.set('url', feed);
   return proxy.toString();
 };
