@@ -3,7 +3,7 @@
 import i18next from 'i18next';
 import * as yup from 'yup';
 import axios from 'axios';
-import Modal from 'bootstrap/js/dist/modal';
+import Modal from 'bootstrap/js/dist/modal.js';
 import resources from './locales/resources.js';
 import initView from './view.js';
 import parseRSS from './rssParser.js';
